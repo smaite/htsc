@@ -67,12 +67,16 @@ CREATE INDEX IF NOT EXISTS idx_starboard_id ON starboard_data(id);
 ```
 starboard/
 ├── index.html              # Main application
+├── admin.html              # Admin dashboard
 ├── script.js              # Updated with Supabase integration
+├── admin.js               # Admin dashboard functionality
 ├── styles.css             # Glassmorphism UI styles
+├── admin-styles.css       # Admin dashboard styles
 ├── netlify.toml           # Netlify configuration
 ├── package.json           # Dependencies (includes @supabase/supabase-js)
 ├── SUPABASE_SETUP.md      # Detailed Supabase setup guide
 ├── test-supabase.html     # Test page for Supabase integration
+├── README.md              # This file
 └── netlify/
     └── functions/
         ├── starboard.js           # Legacy Netlify Blobs function
@@ -141,6 +145,33 @@ starboard/
 - Initial load may be slower (fetching from cloud)
 - Subsequent loads use cached data
 - Consider enabling Supabase connection pooling
+
+## 👨‍💼 Admin Dashboard
+
+StarBoard includes a comprehensive admin dashboard (`admin.html`) for managing all aspects of the system.
+
+### Features:
+- **Dashboard Overview**: Real-time statistics and recent activity
+- **User Management**: Add, edit, and delete students and teachers
+- **Class Management**: Create and manage classes with full CRUD operations
+- **Analytics**: Charts and reports on student performance and achievements
+- **System Settings**: Configure themes, achievement thresholds, and system preferences
+- **Backup & Restore**: Export data, create backups, and restore from backups
+- **Data Export**: Export to CSV and PDF formats
+
+### Admin Access:
+- **URL**: `admin.html` (accessible from the main navigation)
+- **Default Credentials**:
+  - Username: `admin`
+  - Password: `starboard2024`
+  - Username: `superadmin`
+  - Password: `admin123`
+
+### Security Features:
+- Secure authentication with session management
+- Role-based access control
+- Data validation and sanitization
+- Automatic session timeout (24 hours)
 
 ## 📝 Migration from Firebase
 
