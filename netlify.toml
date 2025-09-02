@@ -1,6 +1,6 @@
 [build]
   functions = "netlify/functions"
 
-[[plugins]]
-  package = "@netlify/blobs"
+# Note: @netlify/blobs is not a plugin, it's an npm package
+# It's already included in package.json dependencies
 
