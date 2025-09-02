@@ -1169,7 +1169,32 @@ input[type="text"]:focus, input[type="password"]:focus, .glass-select:focus {
   }
 
   .floating-stars i {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
+  }
+
+  .floating-stars .star-1 {
+    top: 30%;
+    left: 10%;
+  }
+
+  .floating-stars .star-2 {
+    top: 70%;
+    left: 80%;
+  }
+
+  .floating-stars .star-3 {
+    top: 50%;
+    left: 60%;
+  }
+
+  .floating-stars .medal-1 {
+    top: 20%;
+    left: 70%;
+  }
+
+  .floating-stars .medal-2 {
+    top: 80%;
+    left: 20%;
   }
   
   .logo {
@@ -1265,6 +1290,85 @@ input[type="text"]:focus, input[type="password"]:focus, .glass-select:focus {
   .toast {
     min-width: auto;
     width: calc(100vw - 40px);
+  }
+
+  /* Mobile-specific improvements */
+  .welcome-section {
+    margin: 15px;
+    padding: 20px;
+  }
+
+  .welcome-stats {
+    gap: 12px;
+  }
+
+  .welcome-stat {
+    padding: 12px;
+    min-width: auto;
+    flex: 1;
+  }
+
+  .welcome-stat span {
+    font-size: 1.8rem;
+  }
+
+  .welcome-stat small {
+    font-size: 0.8rem;
+  }
+
+  /* Better mobile navigation */
+  .nav-buttons {
+    gap: 8px;
+  }
+
+  .nav-btn, .btn-primary, .btn-secondary, .btn-danger {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    min-height: 40px;
+  }
+
+  /* Improved mobile form elements */
+  input[type="text"], input[type="password"], .glass-select {
+    padding: 12px 16px;
+    font-size: 16px; /* Prevents zoom on iOS */
+    min-height: 44px;
+  }
+
+  /* Better mobile modal */
+  .modal {
+    margin: 15px;
+    width: calc(100% - 30px);
+    max-height: calc(100vh - 30px);
+  }
+
+  /* Mobile-optimized leaderboard */
+  .student-card {
+    padding: 20px;
+    margin-bottom: 15px;
+  }
+
+  .student-card:hover {
+    transform: translateX(5px);
+  }
+
+  /* Better mobile spacing */
+  .view-header {
+    padding: 20px 0;
+    margin-bottom: 20px;
+  }
+
+  .controls {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .search-container {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  #studentSearch {
+    padding-left: 40px;
   }
 }
 
