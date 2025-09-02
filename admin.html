@@ -1,0 +1,531 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StarBoard Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="admin-styles.css">
+</head>
+<body>
+    <!-- Admin Login Screen -->
+    <div id="adminLogin" class="login-container active">
+        <div class="login-box glass-panel">
+            <div class="login-header">
+                <i class="fas fa-shield-alt"></i>
+                <h1>Admin Portal</h1>
+                <p>Secure Administrative Access</p>
+            </div>
+            <form id="adminLoginForm">
+                <div class="form-group">
+                    <label for="adminUsername">
+                        <i class="fas fa-user"></i>
+                        Username
+                    </label>
+                    <input type="text" id="adminUsername" class="glass-input" required placeholder="Enter admin username">
+                </div>
+                <div class="form-group">
+                    <label for="adminPassword">
+                        <i class="fas fa-lock"></i>
+                        Password
+                    </label>
+                    <input type="password" id="adminPassword" class="glass-input" required placeholder="Enter admin password">
+                </div>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login to Dashboard
+                </button>
+            </form>
+            <div class="login-footer">
+                <a href="index.html" class="back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to StarBoard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar glass-panel">
+            <div class="sidebar-header">
+                <i class="fas fa-star"></i>
+                <h2>StarBoard Admin</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-section="overview">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Overview</span>
+                </a>
+                <a href="#" class="nav-item" data-section="classes">
+                    <i class="fas fa-chalkboard"></i>
+                    <span>Classes</span>
+                </a>
+                <a href="#" class="nav-item" data-section="students">
+                    <i class="fas fa-user-graduate"></i>
+                    <span>Students</span>
+                </a>
+                <a href="#" class="nav-item" data-section="teachers">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <span>Teachers</span>
+                </a>
+                <a href="#" class="nav-item" data-section="analytics">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="#" class="nav-item" data-section="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="#" class="nav-item" data-section="backup">
+                    <i class="fas fa-database"></i>
+                    <span>Backup & Restore</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="admin-info">
+                    <i class="fas fa-user-shield"></i>
+                    <span id="adminName">Admin</span>
+                </div>
+                <button id="logoutBtn" class="btn-secondary">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar glass-panel">
+                <div class="top-bar-left">
+                    <button id="sidebarToggle" class="btn-icon">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 id="sectionTitle">Dashboard Overview</h1>
+                </div>
+                <div class="top-bar-right">
+                    <button id="refreshData" class="btn-icon" title="Refresh Data">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button id="themeToggleAdmin" class="btn-icon" title="Toggle Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div class="sync-status">
+                        <i class="fas fa-cloud"></i>
+                        <span id="syncStatus">Synced</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Sections -->
+            <!-- Overview Section -->
+            <section id="overviewSection" class="dashboard-section active">
+                <div class="stats-grid">
+                    <div class="stat-card glass-panel">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Total Students</h3>
+                            <p class="stat-value" id="totalStudentsCount">0</p>
+                            <span class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i> 12% this month
+                            </span>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-panel">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Total Stars</h3>
+                            <p class="stat-value" id="totalStarsCount">0</p>
+                            <span class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i> 8% this week
+                            </span>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-panel">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <i class="fas fa-chalkboard"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Active Classes</h3>
+                            <p class="stat-value" id="totalClassesCount">0</p>
+                            <span class="stat-change neutral">
+                                <i class="fas fa-minus"></i> No change
+                            </span>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-panel">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Teachers</h3>
+                            <p class="stat-value" id="totalTeachersCount">0</p>
+                            <span class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i> 2 new
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="activity-section glass-panel">
+                    <h2>Recent Activity</h2>
+                    <div id="recentActivity" class="activity-list">
+                        <!-- Activity items will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions glass-panel">
+                    <h2>Quick Actions</h2>
+                    <div class="action-buttons">
+                        <button class="action-btn" onclick="adminDashboard.quickAddClass()">
+                            <i class="fas fa-plus-circle"></i>
+                            Add Class
+                        </button>
+                        <button class="action-btn" onclick="adminDashboard.quickAddTeacher()">
+                            <i class="fas fa-user-plus"></i>
+                            Add Teacher
+                        </button>
+                        <button class="action-btn" onclick="adminDashboard.exportAllData()">
+                            <i class="fas fa-download"></i>
+                            Export Data
+                        </button>
+                        <button class="action-btn" onclick="adminDashboard.generateReport()">
+                            <i class="fas fa-file-alt"></i>
+                            Generate Report
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Classes Management Section -->
+            <section id="classesSection" class="dashboard-section">
+                <div class="section-header">
+                    <h2>Classes Management</h2>
+                    <button class="btn-primary" onclick="adminDashboard.showAddClassModal()">
+                        <i class="fas fa-plus"></i>
+                        Add New Class
+                    </button>
+                </div>
+                <div class="filters-bar glass-panel">
+                    <input type="text" id="classSearch" class="glass-input" placeholder="Search classes...">
+                    <select id="classFilter" class="glass-input">
+                        <option value="all">All Classes</option>
+                        <option value="active">Active</option>
+                        <option value="archived">Archived</option>
+                    </select>
+                </div>
+                <div class="data-table-container glass-panel">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Class Name</th>
+                                <th>Students</th>
+                                <th>Total Stars</th>
+                                <th>Created</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="classesTableBody">
+                            <!-- Classes will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Students Management Section -->
+            <section id="studentsSection" class="dashboard-section">
+                <div class="section-header">
+                    <h2>Students Management</h2>
+                    <button class="btn-primary" onclick="adminDashboard.showAddStudentModal()">
+                        <i class="fas fa-plus"></i>
+                        Add New Student
+                    </button>
+                </div>
+                <div class="filters-bar glass-panel">
+                    <input type="text" id="studentSearch" class="glass-input" placeholder="Search students...">
+                    <select id="studentClassFilter" class="glass-input">
+                        <option value="all">All Classes</option>
+                    </select>
+                    <select id="studentSortBy" class="glass-input">
+                        <option value="name">Sort by Name</option>
+                        <option value="stars">Sort by Stars</option>
+                        <option value="class">Sort by Class</option>
+                    </select>
+                </div>
+                <div class="data-table-container glass-panel">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Class</th>
+                                <th>Stars</th>
+                                <th>Achievements</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody">
+                            <!-- Students will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Teachers Management Section -->
+            <section id="teachersSection" class="dashboard-section">
+                <div class="section-header">
+                    <h2>Teachers Management</h2>
+                    <button class="btn-primary" onclick="adminDashboard.showAddTeacherModal()">
+                        <i class="fas fa-plus"></i>
+                        Add New Teacher
+                    </button>
+                </div>
+                <div class="filters-bar glass-panel">
+                    <input type="text" id="teacherSearch" class="glass-input" placeholder="Search teachers...">
+                </div>
+                <div class="data-table-container glass-panel">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Classes Assigned</th>
+                                <th>Last Login</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teachersTableBody">
+                            <!-- Teachers will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section id="analyticsSection" class="dashboard-section">
+                <div class="section-header">
+                    <h2>Analytics & Reports</h2>
+                    <div class="date-range-picker">
+                        <input type="date" id="startDate" class="glass-input">
+                        <span>to</span>
+                        <input type="date" id="endDate" class="glass-input">
+                        <button class="btn-primary" onclick="adminDashboard.updateAnalytics()">
+                            <i class="fas fa-sync"></i>
+                            Update
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="analytics-grid">
+                    <!-- Star Distribution Chart -->
+                    <div class="chart-container glass-panel">
+                        <h3>Star Distribution by Class</h3>
+                        <canvas id="starDistributionChart"></canvas>
+                    </div>
+                    
+                    <!-- Student Progress Chart -->
+                    <div class="chart-container glass-panel">
+                        <h3>Student Progress Over Time</h3>
+                        <canvas id="progressChart"></canvas>
+                    </div>
+                    
+                    <!-- Top Performers -->
+                    <div class="chart-container glass-panel">
+                        <h3>Top Performers</h3>
+                        <div id="topPerformersList" class="performers-list">
+                            <!-- Top performers will be listed here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Achievement Statistics -->
+                    <div class="chart-container glass-panel">
+                        <h3>Achievement Statistics</h3>
+                        <div class="achievement-stats">
+                            <div class="achievement-stat">
+                                <i class="fas fa-medal" style="color: #ffd700;"></i>
+                                <span class="achievement-label">Gold (50+ stars)</span>
+                                <span class="achievement-count" id="goldCount">0</span>
+                            </div>
+                            <div class="achievement-stat">
+                                <i class="fas fa-medal" style="color: #c0c0c0;"></i>
+                                <span class="achievement-label">Silver (25+ stars)</span>
+                                <span class="achievement-count" id="silverCount">0</span>
+                            </div>
+                            <div class="achievement-stat">
+                                <i class="fas fa-medal" style="color: #cd7f32;"></i>
+                                <span class="achievement-label">Bronze (10+ stars)</span>
+                                <span class="achievement-count" id="bronzeCount">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settingsSection" class="dashboard-section">
+                <div class="section-header">
+                    <h2>System Settings</h2>
+                </div>
+                
+                <div class="settings-grid">
+                    <!-- General Settings -->
+                    <div class="settings-panel glass-panel">
+                        <h3>General Settings</h3>
+                        <div class="setting-item">
+                            <label for="systemName">System Name</label>
+                            <input type="text" id="systemName" class="glass-input" value="StarBoard">
+                        </div>
+                        <div class="setting-item">
+                            <label for="defaultTheme">Default Theme</label>
+                            <select id="defaultTheme" class="glass-input">
+                                <option value="dark">Dark</option>
+                                <option value="light">Light</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="enableSound" checked>
+                                Enable Sound Effects
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="autoBackup" checked>
+                                Automatic Backups
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Admin Settings -->
+                    <div class="settings-panel glass-panel">
+                        <h3>Admin Settings</h3>
+                        <div class="setting-item">
+                            <label for="adminUsername">Admin Username</label>
+                            <input type="text" id="adminUsernameSettings" class="glass-input" value="admin">
+                        </div>
+                        <div class="setting-item">
+                            <label for="adminPassword">Change Password</label>
+                            <input type="password" id="newAdminPassword" class="glass-input" placeholder="New password">
+                        </div>
+                        <div class="setting-item">
+                            <label for="confirmPassword">Confirm Password</label>
+                            <input type="password" id="confirmAdminPassword" class="glass-input" placeholder="Confirm password">
+                        </div>
+                        <button class="btn-primary" onclick="adminDashboard.updateAdminCredentials()">
+                            <i class="fas fa-save"></i>
+                            Update Credentials
+                        </button>
+                    </div>
+                    
+                    <!-- Database Settings -->
+                    <div class="settings-panel glass-panel">
+                        <h3>Database Settings</h3>
+                        <div class="setting-item">
+                            <label>Storage Type</label>
+                            <div class="storage-status">
+                                <span id="storageType">Checking...</span>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <label>Database Status</label>
+                            <div class="storage-status">
+                                <span id="dbStatus">Checking...</span>
+                            </div>
+                        </div>
+                        <button class="btn-secondary" onclick="adminDashboard.testDatabaseConnection()">
+                            <i class="fas fa-plug"></i>
+                            Test Connection
+                        </button>
+                    </div>
+                    
+                    <!-- Achievement Settings -->
+                    <div class="settings-panel glass-panel">
+                        <h3>Achievement Thresholds</h3>
+                        <div class="setting-item">
+                            <label for="bronzeThreshold">Bronze Medal (stars)</label>
+                            <input type="number" id="bronzeThreshold" class="glass-input" value="10">
+                        </div>
+                        <div class="setting-item">
+                            <label for="silverThreshold">Silver Medal (stars)</label>
+                            <input type="number" id="silverThreshold" class="glass-input" value="25">
+                        </div>
+                        <div class="setting-item">
+                            <label for="goldThreshold">Gold Medal (stars)</label>
+                            <input type="number" id="goldThreshold" class="glass-input" value="50">
+                        </div>
+                        <button class="btn-primary" onclick="adminDashboard.updateAchievementSettings()">
+                            <i class="fas fa-save"></i>
+                            Save Thresholds
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="settings-actions glass-panel">
+                    <button class="btn-primary" onclick="adminDashboard.saveAllSettings()">
+                        <i class="fas fa-save"></i>
+                        Save All Settings
+                    </button>
+                    <button class="btn-secondary" onclick="adminDashboard.resetToDefaults()">
+                        <i class="fas fa-undo"></i>
+                        Reset to Defaults
+                    </button>
+                </div>
+            </section>
+
+            <!-- Backup & Restore Section -->
+            <section id="backupSection" class="dashboard-section">
+                <div class="section-header">
+                    <h2>Backup & Restore</h2>
+                </div>
+                
+                <div class="backup-grid">
+                    <!-- Manual Backup -->
+                    <div class="backup-panel glass-panel">
+                        <h3>Create Backup</h3>
+                        <p>Create a complete backup of all data including classes, students, teachers, and settings.</p>
+                        <button class="btn-primary" onclick="adminDashboard.createBackup()">
+                            <i class="fas fa-download"></i>
+                            Download Backup
+                        </button>
+                    </div>
+                    
+                    <!-- Restore -->
+                    <div class="backup-panel glass-panel">
+                        <h3>Restore from Backup</h3>
+                        <p>Upload a backup file to restore all data. This will replace current data.</p>
+                        <input type="file" id="restoreFile" accept=".json" style="display: none;">
+                        <button class="btn-secondary" onclick="document.getElementById('restoreFile').click()">
+                            <i class="fas fa-upload"></i>
+                            Upload Backup File
+                        </button>
+                    </div>
+                    
+                    <!-- Auto Backups -->
+                    <div class="backup-panel glass-panel">
+                        <h3>Automatic Backups</h3>
+                        <div id="autoBackupsList" class="backup-list">
+                            <!-- Auto backups will be listed here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Export Options -->
+                    <div class="backup-panel glass-panel">
+                        <h3>Export Options</h3>
+                        <button class="btn-secondary" onclick="adminDashboard.exportCSV('students')">
+                            <i class="fas fa-file-csv"></i>
+                            Export Students CSV
+                        </button>
+                        <button class="btn-secondary" onclick="adminDashboard.exportCSV('classes')">
+                            <i class="fas fa-file-csv"></i>
+                            Export Classes CSV
+                        </button>
