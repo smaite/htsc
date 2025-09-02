@@ -268,20 +268,21 @@ body {
 
 /* Enhanced Buttons */
 .nav-btn, .btn-primary, .btn-secondary, .btn-danger {
-  padding: 14px 28px;
+  padding: 12px 20px;
   border: none;
-  border-radius: 15px;
+  border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   text-decoration: none;
   position: relative;
   overflow: hidden;
   transform-style: preserve-3d;
+  min-height: 44px;
 }
 
 .btn-primary, .btn-secondary, .btn-danger {
@@ -712,10 +713,44 @@ input[type="text"]:focus, input[type="password"]:focus, .glass-select:focus {
 
 .class-actions, .student-actions {
   display: flex;
-  gap: 15px;
-  align-items: center;
+  gap: 12px;
+  align-items: stretch;
   flex-wrap: wrap;
   margin-bottom: 20px;
+  background: var(--bg-glass);
+  padding: 20px;
+  border-radius: 15px;
+  border: 1px solid var(--border-color);
+}
+
+.class-actions .input-group, .student-actions .input-group {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.class-actions input, .student-actions input {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.class-actions input:focus, .student-actions input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2);
+}
+
+.class-actions .btn-primary, .student-actions .btn-primary {
+  padding: 12px 20px;
+  white-space: nowrap;
+  min-height: 44px;
 }
 
 /* Student Management */
@@ -932,25 +967,69 @@ input[type="text"]:focus, input[type="password"]:focus, .glass-select:focus {
   .dashboard-header {
     flex-direction: column;
     align-items: stretch;
+    gap: 15px;
   }
-  
+
+  .dashboard-header h2 {
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
   .dashboard-actions {
     justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .dashboard-actions .btn-secondary {
+    padding: 10px 15px;
+    font-size: 13px;
+    min-height: 40px;
   }
   
   .class-actions, .student-actions {
     flex-direction: column;
     align-items: stretch;
+    gap: 15px;
+    padding: 15px;
+  }
+
+  .class-actions .input-group, .student-actions .input-group {
+    flex-direction: column;
+    gap: 10px;
+    min-width: auto;
+  }
+
+  .class-actions .btn-primary, .student-actions .btn-primary {
+    width: 100%;
+    justify-content: center;
   }
   
   .student-item {
     flex-direction: column;
     gap: 15px;
     align-items: stretch;
+    padding: 15px;
   }
-  
+
+  .student-details {
+    text-align: center;
+  }
+
   .student-controls {
     justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .star-controls {
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .star-btn {
+    min-width: 50px;
+    padding: 8px 12px;
+    font-size: 12px;
   }
   
   .modal {
