@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@netlify/blobs": "^6.5.0"
+    "@netlify/blobs": "^6.5.0",
+    "@supabase/supabase-js": "^2.39.0"
   }
 }
 

@@ -14,9 +14,10 @@ class StarBoard {
         // In-memory cache for fast synchronous reads
         this.memoryCache = null;
 
-        // Firebase / Firestore state
-        this.firebaseConfig = null;
-        this.firestore = null;
+        // Supabase state
+        this.supabaseUrl = null;
+        this.supabaseKey = null;
+        this.supabase = null;
         
         this.initializeApp();
         this.bindEvents();
@@ -42,7 +43,21 @@ class StarBoard {
     }
 
     async initializeDataStorage() {
-        // Try Netlify Function (shared cloud) first, then Firestore, else local IndexedDB
+        // Try Supabase through Netlify Function first, then local IndexedDB
+        try {
+            const supabaseData = await this.tryLoadFromSupabase();
+            if (supabaseData) {
+                this.memoryCache = supabaseData;
+                await this.dbInit();
+                await this.dbSave(supabaseData);
+                localStorage.setItem('starboard_data', JSON.stringify(supabaseData, null, 2));
+                return;
+            }
+        } catch (e) {
+            console.warn('Supabase unavailable, falling back to local storage:', e);
+        }
+
+        // Try legacy Netlify Blobs function
         try {
             const netlifyData = await this.tryLoadFromNetlify();
             if (netlifyData) {
@@ -53,28 +68,6 @@ class StarBoard {
                 return;
             }
         } catch (_) {}
-
-        // Priority: global Firebase config from HTML, else stored config
-        await this.loadFirebaseConfig();
-        if (window.STARBOARD_FIREBASE_CONFIG) {
-            this.firebaseConfig = window.STARBOARD_FIREBASE_CONFIG;
-        }
-        if (this.firebaseConfig) {
-            try {
-                await this.initFirebase();
-                const cloud = await this.loadDataFromFirestore();
-                if (cloud) {
-                    this.memoryCache = cloud;
-                    // keep a local cache copy
-                    await this.dbInit();
-                    await this.dbSave(cloud);
-                    localStorage.setItem('starboard_data', JSON.stringify(cloud, null, 2));
-            return;
-                }
-            } catch (e) {
-                console.warn('Firestore unavailable, falling back to local DB:', e);
-            }
-        }
 
         // Initialize local DB and prime cache
         await this.dbInit();
@@ -118,16 +111,28 @@ class StarBoard {
             
             // Update memory cache immediately
             this.memoryCache = JSON.parse(JSON.stringify(data));
-            // Try Netlify Function first, then Firestore, else local
-            const pushed = await this.trySaveToNetlify(this.memoryCache).catch(() => false);
-            if (!pushed && this.firestore) {
+            
+            // Try Supabase first, then Netlify Blobs, else local
+            let saved = false;
+            
+            // Try Supabase
+            try {
+                saved = await this.trySaveToSupabase(this.memoryCache);
+            } catch (e) {
+                console.warn('Failed to save to Supabase:', e);
+            }
+            
+            // If Supabase failed, try Netlify Blobs
+            if (!saved) {
                 try {
-                    await this.saveDataToFirestore(this.memoryCache);
+                    saved = await this.trySaveToNetlify(this.memoryCache);
                 } catch (e) {
-                    console.warn('Failed to save to Firestore, saving locally instead:', e);
-                    await this.dbSave(this.memoryCache);
+                    console.warn('Failed to save to Netlify Blobs:', e);
                 }
-            } else if (!pushed) {
+            }
+            
+            // If both failed, save locally
+            if (!saved) {
                 await this.dbSave(this.memoryCache);
             }
             // Always update localStorage cache for quick reloads
@@ -141,7 +146,37 @@ class StarBoard {
         }
     }
 
-    // Netlify Function I/O
+    // Supabase I/O through Netlify Function
+    async tryLoadFromSupabase() {
+        try {
+            const res = await fetch('/.netlify/functions/supabase-starboard', {
+                headers: { 'Cache-Control': 'no-store' }
+            });
+            if (!res.ok) return null;
+            const data = await res.json();
+            if (this.validateDataStructure(data)) return data;
+            return null;
+        } catch (e) {
+            console.error('Error loading from Supabase:', e);
+            return null;
+        }
+    }
+
+    async trySaveToSupabase(data) {
+        try {
+            const res = await fetch('/.netlify/functions/supabase-starboard', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            return res.ok;
+        } catch (e) {
+            console.error('Error saving to Supabase:', e);
+            return false;
+        }
+    }
+
+    // Legacy Netlify Blobs Function I/O
     async tryLoadFromNetlify() {
         try {
             const res = await fetch('/.netlify/functions/starboard', { headers: { 'Cache-Control': 'no-store' } });
@@ -220,123 +255,60 @@ class StarBoard {
         });
     }
 
-    // Firebase / Firestore integration
-    async loadFirebaseConfig() {
-        try {
-            const raw = localStorage.getItem('starboard_firebase_config');
-            if (raw) {
-                this.firebaseConfig = JSON.parse(raw);
-            }
-        } catch (e) {
-            console.warn('No Firebase config found or invalid.');
-        }
-    }
-
-    saveFirebaseConfig() {
-        localStorage.setItem('starboard_firebase_config', JSON.stringify(this.firebaseConfig));
-    }
-
-    async initFirebase() {
-        if (!this.firebaseConfig) throw new Error('Missing Firebase config');
-        // Dynamically import Firebase SDK (works on Netlify/static hosting)
-        const appMod = await import('https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js');
-        const fsMod = await import('https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js');
-        const app = appMod.initializeApp(this.firebaseConfig);
-        this._fsMod = fsMod;
-        // Initialize Firestore with resilient transport settings
-        try {
-            this.firestore = fsMod.initializeFirestore(app, {
-                experimentalAutoDetectLongPolling: true,
-                useFetchStreams: false
-            });
-        } catch (e) {
-            // Fallback for hosts that need explicit long polling
-            this.firestore = fsMod.initializeFirestore(app, {
-                experimentalForceLongPolling: true,
-                useFetchStreams: false
-            });
-        }
-    }
-
-    async loadDataFromFirestore() {
-        if (!this.firestore) return null;
-        const { doc, getDoc } = this._fsMod;
-        const ref = doc(this.firestore, 'starboard', 'data');
-        const snap = await getDoc(ref);
-        if (!snap.exists()) return null;
-        const data = snap.data();
-        // Validate structure before using
-        if (this.validateDataStructure(data)) return data;
-        return null;
-    }
-
-    async saveDataToFirestore(data) {
-        if (!this.firestore) return false;
-        const { doc, setDoc } = this._fsMod;
-        const ref = doc(this.firestore, 'starboard', 'data');
-        await setDoc(ref, data, { merge: false });
-        return true;
-    }
-
-    showFirebaseSetup() {
+    // Supabase configuration info modal
+    showSupabaseInfo() {
         const body = `
-            <div class="form-group">
-                <label>apiKey</label>
-                <input type="text" id="fb-apiKey" class="glass-input" placeholder="AIza...">
-            </div>
-            <div class="form-group">
-                <label>authDomain</label>
-                <input type="text" id="fb-authDomain" class="glass-input" placeholder="your-app.firebaseapp.com">
-            </div>
-            <div class="form-group">
-                <label>projectId</label>
-                <input type="text" id="fb-projectId" class="glass-input" placeholder="your-project-id">
-            </div>
-            <p class="text-muted">Optional advanced fields (leave blank if unsure):</p>
-            <div class="form-group">
-                <label>storageBucket</label>
-                <input type="text" id="fb-storageBucket" class="glass-input" placeholder="your-project-id.appspot.com">
-            </div>
-            <div class="form-group">
-                <label>messagingSenderId</label>
-                <input type="text" id="fb-messagingSenderId" class="glass-input" placeholder="1234567890">
-            </div>
-            <div class="form-group">
-                <label>appId</label>
-                <input type="text" id="fb-appId" class="glass-input" placeholder="1:123:web:abc">
+            <div class="info-panel">
+                <h3>Supabase Integration Active</h3>
+                <p>This StarBoard instance is configured to use Supabase for cloud storage through Netlify.</p>
+                
+                <h4>Setup Instructions:</h4>
+                <ol>
+                    <li><strong>Create a Supabase Project:</strong>
+                        <ul>
+                            <li>Go to <a href="https://supabase.com" target="_blank">supabase.com</a></li>
+                            <li>Create a new project (free tier available)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Create the Database Table:</strong>
+                        <p>Run this SQL in your Supabase SQL editor:</p>
+                        <pre style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px;">
+CREATE TABLE IF NOT EXISTS starboard_data (
+    id TEXT PRIMARY KEY,
+    data JSONB NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create an index for faster queries
+CREATE INDEX IF NOT EXISTS idx_starboard_id ON starboard_data(id);
+                        </pre>
+                    </li>
+                    <li><strong>Configure Netlify Environment Variables:</strong>
+                        <p>In your Netlify site settings, add these environment variables:</p>
+                        <ul>
+                            <li><code>SUPABASE_URL</code> - Your Supabase project URL</li>
+                            <li><code>SUPABASE_SERVICE_KEY</code> - Your Supabase service role key (for server-side access)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Deploy:</strong>
+                        <p>Push your changes and Netlify will automatically use Supabase for data storage!</p>
+                    </li>
+                </ol>
+                
+                <h4>Benefits of Supabase:</h4>
+                <ul>
+                    <li>✅ Real-time database with PostgreSQL</li>
+                    <li>✅ Generous free tier (500MB database, 2GB bandwidth)</li>
+                    <li>✅ Built-in authentication (if needed in future)</li>
+                    <li>✅ Row-level security</li>
+                    <li>✅ Automatic backups</li>
+                </ul>
+                
+                <p class="text-muted">Note: The app will automatically fall back to local storage if Supabase is not configured.</p>
             </div>
         `;
-        this.showModal('Cloud Database Setup (Firebase)', body, [
-            { text: 'Skip (Local Only)', class: 'btn-secondary', action: () => this.closeModal() },
-            { text: 'Save', class: 'btn-primary', action: async () => {
-                const cfg = {
-                    apiKey: document.getElementById('fb-apiKey').value.trim(),
-                    authDomain: document.getElementById('fb-authDomain').value.trim(),
-                    projectId: document.getElementById('fb-projectId').value.trim()
-                };
-                const storageBucket = document.getElementById('fb-storageBucket').value.trim();
-                const messagingSenderId = document.getElementById('fb-messagingSenderId').value.trim();
-                const appId = document.getElementById('fb-appId').value.trim();
-                if (storageBucket) cfg.storageBucket = storageBucket;
-                if (messagingSenderId) cfg.messagingSenderId = messagingSenderId;
-                if (appId) cfg.appId = appId;
-                if (!cfg.apiKey || !cfg.authDomain || !cfg.projectId) {
-                    this.showToast('Please fill required fields', 'error');
-                    return;
-                }
-                this.firebaseConfig = cfg;
-                this.saveFirebaseConfig();
-                try {
-                    await this.initFirebase();
-                    // on first-time setup, if no cloud doc, push current local data
-                    const data = this.getData();
-                    await this.saveDataToFirestore(data);
-                    this.showToast('Cloud DB configured!', 'success');
-                    this.closeModal();
-                } catch (e) {
-                    this.showToast('Failed to init Firebase: ' + e.message, 'error');
-                }
-            }}
+        this.showModal('Supabase Cloud Storage', body, [
+            { text: 'Got it!', class: 'btn-primary', action: () => this.closeModal() }
         ]);
     }
 
@@ -981,10 +953,10 @@ class StarBoard {
             this.updateLeaderboard();
         }
 
-        // Prompt for Firebase on first load if no cloud configured
-        if (!this.firebaseConfig && !localStorage.getItem('starboard_firebase_prompted')) {
-            localStorage.setItem('starboard_firebase_prompted', 'true');
-            this.showFirebaseSetup();
+        // Show Supabase info on first load
+        if (!localStorage.getItem('starboard_supabase_info_shown')) {
+            localStorage.setItem('starboard_supabase_info_shown', 'true');
+            setTimeout(() => this.showSupabaseInfo(), 2000);
         }
     }
 
