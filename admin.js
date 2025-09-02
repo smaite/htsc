@@ -312,12 +312,25 @@ class AdminDashboard {
         document.getElementById('adminModal').addEventListener('click', (e) => {
             if (e.target.id === 'adminModal') this.closeModal();
         });
+
+        // Mobile bottom navigation
+        document.querySelectorAll('.mobile-nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = e.currentTarget.getAttribute('data-section');
+                this.switchSection(section);
+            });
+        });
     }
 
     switchSection(section) {
-        // Update navigation
+        // Update desktop navigation
         document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
         document.querySelector(`[data-section="${section}"]`).classList.add('active');
+
+        // Update mobile navigation
+        document.querySelectorAll('.mobile-nav-item').forEach(item => item.classList.remove('active'));
+        document.querySelector(`.mobile-nav-item[data-section="${section}"]`).classList.add('active');
 
         // Update content
         document.querySelectorAll('.dashboard-section').forEach(sec => sec.classList.remove('active'));
@@ -358,12 +371,15 @@ class AdminDashboard {
         this.theme = this.theme === 'dark' ? 'light' : 'dark';
         this.applyTheme();
         localStorage.setItem('admin_theme', this.theme);
+        this.showToast(`Switched to ${this.theme} theme`, 'success');
     }
 
     applyTheme() {
         document.documentElement.setAttribute('data-theme', this.theme);
         const icon = document.querySelector('#themeToggleAdmin i');
-        icon.className = this.theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        if (icon) {
+            icon.className = this.theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
     }
 
     toggleSidebar() {

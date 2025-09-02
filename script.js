@@ -31,11 +31,12 @@ class StarBoard {
     async initializeApp() {
         // Initialize data storage
         await this.initializeDataStorage();
-        
+
         this.loadClasses();
         this.updateUI();
         this.initializeParticleEffects();
-        
+        this.updateWelcomeStats();
+
         // Set up periodic data validation
         setInterval(() => {
             this.validateAndCleanupData();
@@ -952,12 +953,67 @@ CREATE INDEX IF NOT EXISTS idx_starboard_id ON starboard_data(id);
         if (this.currentView === 'public') {
             this.updateLeaderboard();
         }
+        this.updateWelcomeStats();
 
         // Show Supabase info on first load
         if (!localStorage.getItem('starboard_supabase_info_shown')) {
             localStorage.setItem('starboard_supabase_info_shown', 'true');
             setTimeout(() => this.showSupabaseInfo(), 2000);
         }
+    }
+
+    // Update welcome section statistics
+    updateWelcomeStats() {
+        const data = this.getData();
+        let totalStudents = 0;
+        let totalStars = 0;
+        let totalAchievements = 0;
+
+        // Calculate stats from all classes
+        Object.values(data.classes || {}).forEach(classData => {
+            if (classData.students) {
+                Object.values(classData.students).forEach(student => {
+                    totalStudents++;
+                    totalStars += student.stars || 0;
+
+                    // Count achievements (bronze, silver, gold)
+                    const stars = student.stars || 0;
+                    if (stars >= 10) totalAchievements++; // At least bronze
+                });
+            }
+        });
+
+        // Animate the numbers
+        this.animateNumber('welcomeStudentCount', totalStudents);
+        this.animateNumber('welcomeStarCount', totalStars);
+        this.animateNumber('welcomeAchievementCount', totalAchievements);
+    }
+
+    // Animate number counting
+    animateNumber(elementId, targetValue, duration = 1000) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+
+        const startValue = parseInt(element.textContent) || 0;
+        const difference = targetValue - startValue;
+        const startTime = performance.now();
+
+        const animate = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+
+            // Easing function for smooth animation
+            const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+            const currentValue = Math.round(startValue + (difference * easeOutQuart));
+
+            element.textContent = currentValue;
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        };
+
+        requestAnimationFrame(animate);
     }
 
     showModal(title, body, buttons) {
