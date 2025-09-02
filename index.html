@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StarBoard - Student Star Rating System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Enhanced animated starfield background -->
+    <div class="starfield">
+        <div class="stars"></div>
+        <div class="twinkling"></div>
+        <div class="floating-particles"></div>
+    </div>
+
+    <!-- Main application container -->
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header glass-panel">
+            <div class="header-content">
+                <h1 class="logo">
+                    <i class="fas fa-star"></i>
+                    StarBoard
+                </h1>
+                <nav class="nav-buttons">
+                    <button id="publicViewBtn" class="nav-btn active">
+                        <i class="fas fa-eye"></i>
+                        Public View
+                    </button>
+                    <button id="teacherPortalBtn" class="nav-btn">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        Teacher Portal
+                    </button>
+                    <button id="themeToggle" class="theme-toggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main content area -->
+        <main class="main-content">
+            <!-- Public View -->
+            <div id="publicView" class="view active">
+                <div class="view-header">
+                    <h2>Student Leaderboards</h2>
+                    <div class="controls">
+                        <div class="search-container">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="studentSearch" placeholder="Search students...">
+                        </div>
+                        <select id="classSelect" class="glass-select">
+                            <option value="">Select a class</option>
+                        </select>
+                        <select id="leaderboardType" class="glass-select">
+                            <option value="class">Class Leaderboard</option>
+                            <option value="global">Global Leaderboard</option>
+                        </select>
+                        <button id="shareClassBtn" class="btn-secondary">
+                            <i class="fas fa-share"></i>
+                            Share Class
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="leaderboard-container">
+                    <div id="leaderboard" class="leaderboard glass-panel">
+                        <div class="empty-state">
+                            <i class="fas fa-star"></i>
+                            <h3>Welcome to StarBoard</h3>
+                            <p>Select a class to view the leaderboard</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teacher Portal -->
+            <div id="teacherPortal" class="view">
+                <!-- Login Form -->
+                <div id="loginForm" class="login-container">
+                    <div class="login-panel glass-panel">
+                        <h2>Teacher Login</h2>
+                        <form id="teacherLoginForm">
+                            <div class="input-group">
+                                <i class="fas fa-user"></i>
+                                <input type="text" id="teacherUsername" placeholder="Username" required>
+                            </div>
+                            <div class="input-group">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="teacherPassword" placeholder="Password" required>
+                            </div>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-sign-in-alt"></i>
+                                Login
+                            </button>
+                        </form>
+                        <p class="login-hint">Default: teacher / starboard</p>
+                    </div>
+                </div>
+
+                <!-- Teacher Dashboard -->
+                <div id="teacherDashboard" class="dashboard">
+                    <div class="dashboard-header">
+                        <h2>Teacher Dashboard</h2>
+                        <div class="dashboard-actions">
+                            <button id="exportDataBtn" class="btn-secondary">
+                                <i class="fas fa-download"></i>
+                                Export Data
+                            </button>
+                            <button id="importDataBtn" class="btn-secondary">
+                                <i class="fas fa-upload"></i>
+                                Import Data
+                            </button>
+                            <input type="file" id="importFileInput" accept=".json" style="display: none;">
+                            <button id="logoutBtn" class="btn-danger">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Class Management -->
+                    <div class="management-section glass-panel">
+                        <h3>Class Management</h3>
+                        <div class="class-actions">
+                            <div class="input-group">
+                                <input type="text" id="newClassName" placeholder="Class name">
+                                <button id="createClassBtn" class="btn-primary">
+                                    <i class="fas fa-plus"></i>
+                                    Create Class
+                                </button>
+                            </div>
+                            <select id="teacherClassSelect" class="glass-select">
+                                <option value="">Select a class to manage</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Class Statistics -->
+                    <div id="classStatistics" class="management-section glass-panel" style="display: none;">
+                        <h3>Class Statistics - <span id="statsClassName"></span></h3>
+                        <div class="stats-grid">
+                            <div class="stat-card glass-panel">
+                                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                                <div class="stat-value" id="totalStudents">0</div>
+                                <div class="stat-label">Total Students</div>
+                            </div>
+                            <div class="stat-card glass-panel">
+                                <div class="stat-icon"><i class="fas fa-star"></i></div>
+                                <div class="stat-value" id="totalStars">0</div>
+                                <div class="stat-label">Total Stars</div>
+                            </div>
+                            <div class="stat-card glass-panel">
+                                <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                                <div class="stat-value" id="averageStars">0</div>
+                                <div class="stat-label">Average Stars</div>
+                            </div>
+                            <div class="stat-card glass-panel">
+                                <div class="stat-icon"><i class="fas fa-trophy"></i></div>
+                                <div class="stat-value" id="topPerformer">-</div>
+                                <div class="stat-label">Top Performer</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Student Management -->
+                    <div id="studentManagement" class="management-section glass-panel" style="display: none;">
+                        <h3>Student Management - <span id="currentClassName"></span></h3>
+                        
+                        <div class="student-actions">
+                            <div class="input-group">
+                                <input type="text" id="newStudentName" placeholder="Student name">
+                                <button id="addStudentBtn" class="btn-primary">
+                                    <i class="fas fa-user-plus"></i>
+                                    Add Student
+                                </button>
+                            </div>
+                            <button id="renameClassBtn" class="btn-secondary">
+                                <i class="fas fa-edit"></i>
+                                Rename Class
+                            </button>
+                            <button id="deleteClassBtn" class="btn-danger">
+                                <i class="fas fa-trash"></i>
+                                Delete Class
+                            </button>
+                        </div>
+
+                        <div id="studentList" class="student-list">
+                            <!-- Students will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="modalOverlay" class="modal-overlay">
+        <div class="modal glass-panel">
+            <div class="modal-header">
+                <h3 id="modalTitle"></h3>
+                <button class="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Modal content will be inserted here -->
+            </div>
+            <div class="modal-footer" id="modalFooter">
+                <!-- Modal buttons will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Celebration effects container -->
+    <div id="celebrationContainer" class="celebration-effect"></div>
+    
+    <script type="module">
+        // Provide Firebase config globally so the app can auto-initialize Firestore
+        window.STARBOARD_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyCdRIQCFjdk3qjbtO2mcu44E8Zw3wFLDbU",
+            authDomain: "glorious-1231.firebaseapp.com",
+            projectId: "glorious-1231",
+            storageBucket: "glorious-1231.appspot.com",
+            messagingSenderId: "360277448748",
+            appId: "1:360277448748:web:8726b36053997c445f1989",
+            measurementId: "G-KH0BZDWLXX"
+        };
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
